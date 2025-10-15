@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Shield</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --bg-nav: rgba(10, 10, 10, 0.95);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card-hover: rgba(255, 255, 255, 0.05);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            --hero-glow: rgba(102, 126, 234, 0.15);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f4ff;
+            --text-primary: #1a202c;
+            --text-secondary: #2d3748;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --hero-glow: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12), transparent 70%);
+            --gradient-text: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            --card-hover: #f8faff;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 40px rgba(99, 102, 241, 0.15);
+            --shadow-hover: 0 8px 30px rgba(99, 102, 241, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--bg-nav);
+            backdrop-filter: blur(20px) saturate(180%);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] nav {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        [data-theme="dark"] nav {
+            background: rgba(10, 10, 10, 0.8);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.5px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            position: relative;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-links a:hover {
+            color: #6366f1;
+            background: var(--bg-secondary);
+        }
+
+        [data-theme="light"] .nav-links a:hover {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            color: #4f46e5;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0.5rem;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 60%;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.65rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            border-color: transparent;
+        }
+
+        .theme-toggle:hover i {
+            color: #ffffff;
+            transform: rotate(20deg);
+        }
+
+        .theme-toggle i {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .theme-toggle {
+            background: linear-gradient(135deg, #ffffff, #f8faff);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+        }
+
+        [data-theme="light"] .theme-toggle:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 4rem;
+            background: radial-gradient(ellipse at top, var(--hero-glow) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--hero-glow) 0%, transparent 70%);
+            top: -250px;
+            right: -250px;
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        [data-theme="light"] .stat-number {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        [data-theme="light"] .stat-label {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        [data-theme="light"] .btn-secondary {
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            color: #6366f1;
+            border: 2px solid #e2e8f0;
+            box-shadow: var(--shadow-sm);
+            font-weight: 600;
+        }
+
+        [data-theme="light"] .btn-secondary:hover {
+            background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+            border-color: #c7d2fe;
+            box-shadow: var(--shadow-md);
+            color: #4f46e5;
+        }
+
+        /* Features Section */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        [data-theme="dark"] .section-title {
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        [data-theme="light"] .section-subtitle {
+            color: #64748b;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            background: var(--card-hover);
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+        }
+
+        [data-theme="light"] .feature-card {
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border-color);
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+        }
+
+        [data-theme="light"] .feature-card:hover {
+            box-shadow: var(--shadow-hover);
+            border-color: #a5b4fc;
+            transform: translateY(-8px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        [data-theme="light"] .feature-icon {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        /* How It Works */
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .step p {
+            color: var(--text-secondary);
+        }
+
+        /* Demo Section */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .demo-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .demo-card:hover {
+            background: var(--card-hover);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+        }
+
+        [data-theme="light"] .demo-card {
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border-color);
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+        }
+
+        [data-theme="light"] .demo-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: #a5b4fc;
+            transform: translateY(-4px);
+        }
+
+        .demo-text {
+            font-style: italic;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .demo-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .demo-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .spam {
+            color: #ff6b6b;
+        }
+
+        .ham {
+            color: #51cf66;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: radial-gradient(ellipse at center, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 1rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .nav-links {
+                gap: 0.3rem;
+            }
+
+            .nav-links a {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .nav-links a span {
+                display: none;
+            }
+
+            .nav-links a i {
+                font-size: 1.2rem;
+            }
+
+            .theme-toggle {
+                padding: 0.5rem 0.8rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i> Spam Shield
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#demo">Demo</a></li>
+            </ul>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Protect Your Inbox From Spam</h1>
+            <p class="hero-subtitle">
+                Transform email security with our cutting-edge machine learning technology.
+                Detect spam and malicious emails in real-time with unmatched accuracy.
+            </p>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">97%</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">&lt;50ms</span>
+                    <span class="stat-label">Response Time</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">5000+</span>
+                    <span class="stat-label">Emails Analyzed</span>
+                </div>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="{{ url_for('analyze_mail') }}" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Get Started
+                </a>
+                <a href="#demo" class="btn btn-secondary">
+                    <i class="fas fa-play-circle"></i> Watch Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="section-header">
+            <h2 class="section-title">Powerful Features</h2>
+            <p class="section-subtitle">Everything you need for comprehensive spam detection</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Lightning Fast</h3>
+                <p>Get instant spam detection results in under 50ms with our optimized ML pipeline.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3>High Accuracy</h3>
+                <p>Achieve 97% accuracy with our <br> TF-IDF vectorization and logistic regression model.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your emails stay private. All processing happens securely with no data storage.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Responsive Design</h3>
+                <p>Works seamlessly across all devices - desktop, tablet and mobile with adaptive UI.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>Machine Learning</h3>
+                <p>Powered by scikit-learn's logistic regression trained on thousands of email samples.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Smart Detection</h3>
+                <p>Advanced algorithms detect spam patterns and phishing attempts automatically.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <div class="section-header">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Simple steps to powerful protection</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Input Email</h3>
+                <p>Enter or paste your email content into our intuitive interface</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>ML Processing</h3>
+                <p>Our ML model analyzes the text using TF-IDF vectorization</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Get Results</h3>
+                <p>Receive instant classification as spam or legitimate email</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section class="section" id="demo">
+        <div class="section-header">
+            <h2 class="section-title">See It In Action</h2>
+            <p class="section-subtitle">Try our spam detection with these examples</p>
+        </div>
+
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-text">
+                    "Congratulations! You've won a FREE iPhone! Click here to claim your prize now!"
+                </div>
+                <div class="demo-result">
+                    <span class="demo-label spam">Spam Detected</span>
+                    <i class="fas fa-times-circle spam" style="font-size: 1.5rem;"></i>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-text">
+                    "Hi, this is a reminder about our team meeting tomorrow at 3 PM. Please review the agenda."
+                </div>
+                <div class="demo-result">
+                    <span class="demo-label ham">Legitimate Email</span>
+                    <i class="fas fa-check-circle ham" style="font-size: 1.5rem;"></i>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-text">
+                    "URGENT: Your account will be suspended unless you verify your information immediately!"
+                </div>
+                <div class="demo-result">
+                    <span class="demo-label spam">Spam Detected</span>
+                    <i class="fas fa-times-circle spam" style="font-size: 1.5rem;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to protect your inbox?</h2>
+        <p>Start analyzing your emails with our ML-powered spam detector</p>
+        <a href="{{ url_for('analyze_mail') }}" class="btn btn-primary">
+            <i class="fas fa-rocket"></i> Start Analyzing
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="{{ url_for('analyze_mail') }}">Try It Now</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Technology</h4>
+                <ul>
+                    <li><a href="#">Machine Learning</a></li>
+                    <li><a href="#">TF-IDF Vectorization</a></li>
+                    <li><a href="#">Natural Language Processing</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>Developed by <b>RAJA</b> 👨🏻‍💻</p>
+            <p>© 2025 SpamShield. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.querySelector('.theme-toggle');
+        const icon = themeToggle.querySelector('i');
+
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        }
+
+        function updateIcon(theme) {
+            if (theme === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+    </script>
+</body>
+
+</html>
